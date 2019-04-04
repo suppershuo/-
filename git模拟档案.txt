@@ -1,0 +1,254 @@
+高级多线程
+1*****************************************
+package step1;
+
+public class Task {
+    public static void main(String[] args) throws Exception {
+        /********* Begin *********/
+        //在这里创建线程， 开启线程
+        Object A = new Object();
+    Object B = new Object();
+    Object C = new Object();
+        MyThread thread1 = new MyThread("AA",C,A);
+
+        MyThread thread2 = new MyThread("BB",A,B);
+
+        MyThread thread3 = new MyThread("CC",B,C);
+        thread1.start();
+        thread1.sleep(100);
+        thread2.start();
+        thread2.sleep(100);
+        thread3.start();
+        /********* End *********/
+    }
+}
+
+class MyThread extends Thread {
+    /********* Begin *********/
+
+
+    String threadName;
+
+    private Object pre;
+    private Object self;
+
+    public MyThread(String threadName,Object pre,Object self){
+        this.threadName = threadName;
+        this.pre = pre;
+        this.self = self;
+    }
+
+
+    public void run() {
+
+        int count = 5;
+
+        while(count > 0){
+            synchronized(pre){
+                synchronized(self){
+                    System.out.println("Java Thread" + this.threadName);
+                    count--;
+                    self.notify();
+                }
+                try{
+                    pre.wait();
+                }catch(Exception e){
+
+                }
+            }        
+        }
+        System.exit(0);
+    }
+
+    /********* End *********/
+}
+2*************************************************
+package step2;
+
+/********* Begin *********/
+//定义站台类，实现卖票的功能。
+public class Station  extends Thread  {     
+
+    static int tick = 20; // 为了保持票数的一致，票数要静态
+    static Object ob = new Object(); // 创建一个静态钥匙 值是任意的
+
+
+    public void ticket() {
+        System.out.println( "卖出了第" + tick + "张票");
+        tick--;
+    }
+
+    public void run() {
+        while (tick > 0) {
+            synchronized (ob) {
+                if (tick > 0) {
+                    ticket();
+                } 
+            }
+            if(tick == 0){
+                System.out.println("票卖完了");
+            }
+            try {
+                Thread.sleep(100);
+            } catch (Exception e) {
+
+            }
+        }
+
+    }
+
+}
+
+/********* End *********/
+文件操作
+1*************************************************
+package step1;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class TimeTable {
+    public static void main(String[] args) throws IOException {
+        /********** Begin *********/
+        File file = new File("src/step1/Time_Table.txt");
+        FileReader fileReader = new FileReader(file);
+        int read = fileReader.read();
+        while (read != -1) {
+        System.out.print((char)read);
+        read = fileReader.read();
+       }
+        fileReader.close();
+
+
+        /********** End *********/
+    }
+}
+2*********************************************
+package step2;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class AddTimeTable {
+    private static final String LINE_SEPARATOR = System.getProperty("line.separator");  //定义LINE_SEPARATOR常量，表示换行符
+    public static void start(String time1, String time2) throws IOException {
+        /********** Begin *********/
+File file = new File("src/step2/Time_Table.txt");
+FileWriter fileWriter = new FileWriter(file, false);
+fileWriter.write(time1 + LINE_SEPARATOR + time2 + LINE_SEPARATOR);
+fileWriter.close();
+
+
+        /********** End *********/
+    }
+}
+3*****************************************************
+package step3;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class DeleteFiles {
+    public static void start() throws IOException {
+        StringBuilder data = new StringBuilder("");
+        /********** Begin *********/
+        //读取readme.txt文件
+File readme = new File("src/step3/readme.txt");
+FileReader readmeReader = new FileReader(readme);
+int read = readmeReader.read();
+while (read != -1) {
+    data.append((char) read);
+    read = readmeReader.read();
+}
+readmeReader.close();
+//写入readmeCopy.txt文件
+File readmeCopy = new File("src/step3/readmeCopy.txt");
+if (!readmeCopy.exists()) {
+    readmeCopy.createNewFile();
+}
+FileWriter fileWriter = new FileWriter(readmeCopy, false);
+fileWriter.write(data.toString());
+fileWriter.close();
+//删除readme.txt文件
+if (readme.exists()) {
+    readme.delete();
+}
+        /********** End *********/
+    }
+}
+文件目录
+1******************************************
+package step1;
+
+import java.io.File;
+
+public class FileDir {
+    public static void start() {
+        File mkdir = new File("src/step1/mkdir");
+        /********** Begin *********/
+
+        System.out.println(mkdir.mkdir());
+
+        /********** End *********/
+
+        File mkdirs = new File("src/step1/mkdirs/folder");
+        /********** Begin *********/
+
+System.out.println(mkdirs.mkdirs());
+
+        /********** End *********/
+    }
+}
+2***********************************************
+package step2;
+
+import java.io.File;
+import java.io.IOException;
+
+public class FileUtil {
+	public static void start() {
+		/********** Begin *********/
+        File file = new File("src/step2");
+File[] files = file.listFiles();
+if (files != null) {
+    for (File f: files) {
+        if (f.isDirectory()) {
+            System.out.println(f.getName());
+        }
+    }
+    for (File f: files) {
+        if (f.isFile()) {
+            System.out.println(f.getName());
+        }
+    }
+}
+
+
+		/********** End *********/
+	}
+}
+3**************************************************
+package step3;
+
+import java.io.File;
+
+public class SearchFile {
+
+    public static void recursiveSearch(File file) {
+        File[] files = file.listFiles();
+        /********** Begin *********/
+        if (files != null) {
+    for (File f: files) {
+        if (f.getName().contains("Search")) {
+            System.out.println(f);
+        }
+        if (f.isDirectory()) {
+            recursiveSearch(f);    //递归调用
+        }
+    }
+}
